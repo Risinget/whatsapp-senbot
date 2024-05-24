@@ -1,0 +1,4 @@
+*.class.log
+node_modules/
+.env
+data.js
