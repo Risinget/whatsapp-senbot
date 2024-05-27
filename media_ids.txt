@@ -1,0 +1,11 @@
+IMAGEN ID: 908540077706638 MEDIA_ORIGINAL: C:\Users\tenor\Desktop\BotWhatsapp\whatsapp-senbot/media/image_1.png
+DOCUMENT ID: 7582894905120670 MEDIA_ORIGINAL: C:\Users\tenor\Desktop\BotWhatsapp\whatsapp-senbot/media/txt_test.txt
+VIDEO ID: 25583674151277972 MEDIA_ORIGINAL: C:\Users\tenor\Desktop\BotWhatsapp\whatsapp-senbot/media/video.mp4
+
+IMAGE ID: undefined IMAGE_ORIGINAL: /images/image_1.png
+IMAGE ID: 808822230822151 IMAGE_ORIGINAL: C:\Users\tenor\Desktop\BotWhatsapp\whatsapp-senbot/images/image_1.png
+IMAGE ID: 894592255808676 IMAGE_ORIGINAL: C:\Users\tenor\Desktop\BotWhatsapp\whatsapp-senbot/images/image_1.png
+IMAGE ID: 759937562999570 IMAGE_ORIGINAL: C:\Users\tenor\Desktop\BotWhatsapp\whatsapp-senbot/images/txt_test.txt
+
+AUDIO ID: 862530589252254 MEDIA_ORIGINAL: c:\Users\tenor\Desktop\BotWhatsapp\whatsapp-senbot/media/audio.opus
+AUDIO ID: 807776011293405 MEDIA_ORIGINAL: c:\Users\tenor\Desktop\BotWhatsapp\whatsapp-senbot/media/audio_musica.mp3

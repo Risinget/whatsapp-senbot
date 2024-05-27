@@ -1,7 +1,7 @@
 const { createBot, createProvider, createFlow, addKeyword, EVENTS} = require('@bot-whatsapp/bot')
 const dotenv = require('dotenv') 
 const MetaProvider = require('@bot-whatsapp/provider/meta')
-const TursoAdapter = require("@bot-whatsapp/database/turso");
+const TursoAdapter = require("./TursoAdapter.js");
 const axios = require("axios");
 const cron = require("node-cron");
 const delay = require("./helpers.js");
@@ -54,7 +54,6 @@ const getNumbers = async () => {
   return numbers.rows;
 };
 
-
 const sendMessageTo = async (number, message) => {
   if (!number) {
     throw new Error("No se ha proporcionado un número");
@@ -103,7 +102,6 @@ const sendMessageTo = async (number, message) => {
     const response = await axios.post(`${URL_BASE}/messages`, data, {
       headers,
     });
-    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error(
@@ -119,23 +117,34 @@ const sendMessages = async () => {
 
     const numbers = await getNumbers();
 
-    const messages = [
-      {
-        image_id: "759937562999570",
-        message: "Message con archivo de texto 1",
-        type: "document",
-      },
-      {
-        image_id: "740110291531552",
-        message: "Message random 2",
-        type: "image",
-      },
-      {
-        image_id: "7809338669131725",
-        message: "Message random 3",
-        type: "image",
-      },
-    ];
+   const messages = [
+     {
+       media_id: "759937562999570",
+       message: "Mensaje de texto, de tipo DOCUMENT",
+       type: "document", // Para archivos .txt, .pdf, .docx, .xlsx, .pptx, .zip
+     },
+     {
+       media_id: "894592255808676",
+       message: "Mensaje con imagen, de tipo IMAGE",
+       type: "image", // Para archivos .png, .jpg, .jpeg, .svg
+     },
+     {
+       media_id: "25583674151277972",
+       message: "Mensaje con video, de tipo VIDEO",
+       type: "video", // Para archivos .mp4
+     },
+     {
+       media_id: "807776011293405",
+       message: "NONE",
+       type: "audio", // Para archivos .mp3
+     },
+     {
+       media_id: "862530589252254",
+       message: "NONE", //No se envia mensaje
+       type: "audio", // Para archivos .opus
+     },
+   ];
+
 
     function getRandomMessage(messages) {
         const randomIndex = Math.floor(Math.random() * messages.length);
@@ -238,4 +247,4 @@ const main = async () => {
 }
 
 main()
-cronMessagesSender(13,35,0);
+cronMessagesSender(15, 3,59);
