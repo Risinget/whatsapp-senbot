@@ -1,14 +1,13 @@
 const { createBot, createProvider, createFlow, addKeyword, EVENTS} = require('@bot-whatsapp/bot')
 const dotenv = require('dotenv') 
 const MetaProvider = require('@bot-whatsapp/provider/meta')
-const MySQLAdapter = require('@bot-whatsapp/database/mysql')
-const mysql = require("mysql2");
+const TursoAdapter = require("@bot-whatsapp/database/turso");
 const axios = require("axios");
 const cron = require("node-cron");
 const delay = require("./helpers.js");
 const { createClient } = require("@libsql/client/web");
+dotenv.config();
 
-dotenv.config()
 /**
  * Declaramos las conexiones de MySQL
  */
@@ -57,20 +56,6 @@ const getNumbers = async () => {
 
 
 const sendMessageTo = async (number, message) => {
-  const data = {
-    messaging_product: "whatsapp",
-    to: `591${number}`,
-    type: "image",
-    image: {
-      id: message.image_id,
-      caption: message.message,
-    },
-  };
-  const Headers = {
-    Authorization: `Bearer ${TOKEN}`,
-    "Content-Type": "application/json",
-  };
-
   if (!number) {
     throw new Error("No se ha proporcionado un número");
   }
@@ -79,13 +64,55 @@ const sendMessageTo = async (number, message) => {
     throw new Error("No se ha proporcionado un mensaje");
   }
 
-  const response = await axios.post(`${URL_BASE}/messages `, data, {
-    headers: Headers,
-  });
-  console.log(response.data);
-  return response.data;
-};
+  const data = {
+    messaging_product: "whatsapp",
+    to: `591${number}`,
+  };
 
+  switch (message.type) {
+    case "text":
+      data.type = "text";
+      data.text = { body: message.message };
+      break;
+    case "document":
+      data.type = "document";
+      data.document = { id: message.media_id, caption: message.message };
+      break;
+    case "image":
+      data.type = "image";
+      data.image = { id: message.media_id, caption: message.message };
+      break;
+    case "video":
+      data.type = "video";
+      data.video = { id: message.media_id, caption: message.message };
+      break;
+    case "audio":
+      data.type = "audio";
+      data.audio = { id: message.media_id };
+      break;
+    default:
+      throw new Error("Tipo de mensaje no soportado");
+  }
+
+  const headers = {
+    Authorization: `Bearer ${TOKEN}`,
+    "Content-Type": "application/json",
+  };
+
+  try {
+    const response = await axios.post(`${URL_BASE}/messages`, data, {
+      headers,
+    });
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error enviando el mensaje:",
+      error.response ? error.response.data : error.message
+    );
+    throw error;
+  }
+};
 
 const sendMessages = async () => {
 
@@ -93,18 +120,21 @@ const sendMessages = async () => {
     const numbers = await getNumbers();
 
     const messages = [
-        {
-        image_id: "781952837249770",
-        message: "Message random 1",
-        },
-        {
+      {
+        image_id: "759937562999570",
+        message: "Message con archivo de texto 1",
+        type: "document",
+      },
+      {
         image_id: "740110291531552",
         message: "Message random 2",
-        },
-        {
+        type: "image",
+      },
+      {
         image_id: "7809338669131725",
         message: "Message random 3",
-        },
+        type: "image",
+      },
     ];
 
     function getRandomMessage(messages) {
@@ -121,7 +151,6 @@ const sendMessages = async () => {
     }
 
 }
-
 
 const cronMessagesSender = async (h,m,s) => {
   // Variables para la hora, minuto y segundo
@@ -187,13 +216,11 @@ const flowPrincipal = addKeyword(EVENTS.WELCOME).addAction(
 
 const main = async () => {
 
-    const adapterDB = new MySQLAdapter({
-        host: MYSQL_DB_HOST,
-        user: MYSQL_DB_USER,
-        database: MYSQL_DB_NAME,
-        password: MYSQL_DB_PASSWORD,
-        port: MYSQL_DB_PORT,
-    })
+    const adapterDB = new TursoAdapter({
+      url: process.env.TURSO_DATABASE_URL,
+      authToken: process.env.TURSO_AUTH_TOKEN,
+    });
+
     const adapterFlow = createFlow([flowPrincipal])
 
     const adapterProvider = createProvider(MetaProvider, {
@@ -204,13 +231,11 @@ const main = async () => {
     });
 
     createBot({
-        flow: adapterFlow,
-        provider: adapterProvider,
-        database: adapterDB,
-    })
-
-
+      flow: adapterFlow,
+      provider: adapterProvider,
+      database: adapterDB,
+    });
 }
 
 main()
-cronMessagesSender(21, 1, 10);
+cronMessagesSender(13,35,0);

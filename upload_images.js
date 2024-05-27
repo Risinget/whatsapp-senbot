@@ -45,6 +45,7 @@ const main = async () => {
   // Aqui las rutas de las imagenes de las cuales quieres obtener su ID
   const images_paths = [
     `${__dirname}/images/image_1.png`,
+    `${__dirname}/images/txt_test.txt`,
     // "/images/image_2.png",
     // "/images/image_3.png",
   ];
