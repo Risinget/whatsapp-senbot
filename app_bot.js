@@ -247,4 +247,4 @@ const main = async () => {
 }
 
 main()
-cronMessagesSender(15, 3,59);
+cronMessagesSender(15, 16,40);
