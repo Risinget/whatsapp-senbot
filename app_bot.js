@@ -8,6 +8,20 @@ const delay = require("./helpers.js");
 const { createClient } = require("@libsql/client/web");
 dotenv.config();
 
+const express = require("express");
+const app = express();
+const port = process.env.PORT || 3001;
+
+app.get("/", (req, res) => {
+  res.send("Im working perfectly!");
+});
+
+app.listen(port, () => {
+  console.log(`App is running on port ${port}`);
+});
+
+
+
 /**
  * Declaramos las conexiones de MySQL
  */
