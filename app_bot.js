@@ -223,15 +223,15 @@ const flowPrincipal = addKeyword(EVENTS.WELCOME).addAction(
     const isSaved = await saveNumber(phoneNumber);
     // 1 = exito, -1 = ya existe, 0 = no es valido, null = no se ha proporcionado un numero
     if (isSaved == 1) {
-      return flowDynamic(`Su número ha sido registrado: ${phoneNumber}`);
+      return await flowDynamic(`Su número ha sido registrado: ${phoneNumber}`);
     } else if (isSaved == -1) {
-      return flowDynamic(`El número ya ha sido registrado: ${phoneNumber}`);
+      return await flowDynamic(`El número ya ha sido registrado: ${phoneNumber}`);
     } else if (isSaved == 0) {
-      return flowDynamic("No hay un número válido, escriba un número de 8 dígitos.");
+      return await flowDynamic("No hay un número válido, escriba un número de 8 dígitos.");
     } else if (isSaved == null) {
-      return flowDynamic("No se ha proporcionado un número.");
+      return await flowDynamic("No se ha proporcionado un número.");
     } else {
-      return flowDynamic("Ha ocurrido un error.");
+      return await flowDynamic("Ha ocurrido un error.");
     }
 
   }
