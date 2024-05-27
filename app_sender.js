@@ -6,7 +6,8 @@ const FormData = require("form-data");
 const cron = require("node-cron");
 
 // Dev data
-import { numbers } from "./data.js";
+const { numbers } = require("./data.js");
+const delay = require('./helpers.js')
 
 dotenv.config()
 const MYSQL_DB_HOST = process.env.MYSQL_DB_HOST;
@@ -76,32 +77,7 @@ const sendMessageTo = async (number, message) => {
   return response.data;
 };
 
-async function uploadImage(filePath) {
-
-  const form = new FormData();
-  form.append("file", fs.createReadStream(filePath));
-  form.append("messaging_product", "whatsapp");
-
-  const headers = {
-    ...form.getHeaders(),
-    Authorization: `Bearer ${TOKEN}`,
-  };
-
-  try {
-    const response = await axios.post(`${URL_BASE}/media`, form, { headers });
-    return response.data.id; // Devuelve el ID de la imagen
-  } catch (error) {
-    console.log(error);
-  }
-}
-
 const main = async () => {
-
-    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-    
-    // const ctx = await sendMessageTo("59176623148", "Hola mundo");
-    // console.log(ctx);
 
     const messages = [
       {
