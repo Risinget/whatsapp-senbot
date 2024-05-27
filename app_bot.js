@@ -6,6 +6,8 @@ const mysql = require("mysql2");
 const axios = require("axios");
 const cron = require("node-cron");
 const delay = require("./helpers.js");
+const { createClient } = require("@libsql/client/web");
+
 dotenv.config()
 /**
  * Declaramos las conexiones de MySQL
@@ -13,56 +15,46 @@ dotenv.config()
 const TOKEN = process.env.TOKEN;
 const NUMBER_ID = process.env.NUMBER_ID;
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
-const MYSQL_DB_HOST = process.env.MYSQL_DB_HOST
-const MYSQL_DB_USER = process.env.MYSQL_DB_USER
-const MYSQL_DB_PASSWORD = process.env.MYSQL_DB_PASSWORD
-const MYSQL_DB_NAME = process.env.MYSQL_DB_NAME
-const MYSQL_DB_PORT = process.env.MYSQL_DB_PORT
 const URL_BASE = `https://graph.facebook.com/v19.0/${NUMBER_ID}`;
 
-
-const conn = mysql.createConnection({
-  host: MYSQL_DB_HOST,
-  user: MYSQL_DB_USER,
-  password: MYSQL_DB_PASSWORD,
-  database: MYSQL_DB_NAME,
-  port: MYSQL_DB_PORT,
+const client = createClient({
+  url: process.env.TURSO_DATABASE_URL,
+  authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
 const saveNumber = async (number) => {
   if (!number) {
-    return 0; // No se ha proporcionado un número
+    return 0;
   }
+  const rowNumber = await client.execute({
+    sql: "SELECT * FROM numbers WHERE number = :number",
+    args: { number: number },
+  });
 
-  // Verificar si el número ya existe
-  const [rows] = await conn
-    .promise()
-    .query("SELECT * FROM numbers WHERE number = ?", [number]);
-
-  if (rows.length > 0) {
-    return -1; // El número ya existe, devolver -1
+  if (rowNumber.rows.length > 0) {
+    return -1;
   }
-
-  // Intentar insertar el número, manejar la posible violación de la restricción UNIQUE
   try {
-    await conn
-      .promise()
-      .query("INSERT INTO numbers (number) VALUES (?)", [number]);
+    const isSaved = await client.execute({
+      sql: "INSERT INTO numbers VALUES (:id_number, :number)",
+      args: { id_number: null, number: number },
+    });
+    console.log("Number saved successfully.");
   } catch (error) {
-    if (error.code === "ER_DUP_ENTRY") {
-      return -1; // El número ya existe debido a una violación de UNIQUE, devolver -1
+    if (error.code === "SQLITE_CONSTRAINT") {
+      return -1;
+    } else {
+      console.error("Error:", error);
     }
-    throw error; // Propagar otros errores
   }
-
-  return 1; // Éxito
+  return 1;
 };
 
 const getNumbers = async () => {
-  const [rows] = await conn.promise().query("SELECT * FROM numbers");
-
-  return rows;
+  const numbers = await client.execute("SELECT * FROM numbers");
+  return numbers.rows;
 };
+
 
 const sendMessageTo = async (number, message) => {
   const data = {
